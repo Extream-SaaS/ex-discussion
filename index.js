@@ -27,6 +27,7 @@ const publish = (
  */
 exports.manage = async (event, context, callback) => {
   const message = event && event.data ? JSON.parse(Buffer.from(event.data, 'base64').toString()) : null;
+  console.log(message);
   if (message === null) {
     callback();
   }
@@ -50,10 +51,10 @@ exports.manage = async (event, context, callback) => {
     });
     console.log(docRef);
 
-    publish('ex-gateway', { domain, action, command, payload: { ...payload, public_id: organisation.public_id }, user, socketId });
+    await publish('ex-gateway', { domain, action, command, payload: { ...payload, public_id: organisation.public_id }, user, socketId });
     callback();
   } catch (error) {
-    publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
+    await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
     callback(0);
   }
 };
