@@ -67,6 +67,8 @@ exports.manage = async (event, context, callback) => {
           ...payload,
           updatedBy: user.id,
           updatedAt: Firestore.FieldValue.serverTimestamp()
+        }, {
+          merge: true
         });
     
         await publish('ex-gateway', { domain, action, command, payload: { ...payload }, user, socketId });
