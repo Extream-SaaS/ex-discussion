@@ -44,7 +44,7 @@ exports.manage = async (event, context, callback) => {
         await docRef.set({
           messages: [],
           ...payload,
-          addedBy: user.public_id,
+          addedBy: user.id,
           addedAt: Firestore.FieldValue.serverTimestamp()
         });
    
@@ -62,7 +62,7 @@ exports.manage = async (event, context, callback) => {
     
         await docRef.set({
           ...payload,
-          updatedBy: user.public_id,
+          updatedBy: user.id,
           updatedAt: Firestore.FieldValue.serverTimestamp()
         });
     
