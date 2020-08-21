@@ -45,7 +45,7 @@ exports.manage = async (event, context, callback) => {
     });
     console.log(docRef);
 
-    await publish('ex-gateway', { domain, action, command, payload: { ...payload, public_id: organisation.public_id }, user, socketId });
+    await publish('ex-gateway', { domain, action, command, payload: { ...payload, public_id: docRef.id }, user, socketId });
     callback();
   } catch (error) {
     console.log(error);
