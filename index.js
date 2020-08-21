@@ -34,9 +34,11 @@ exports.manage = async (event, context, callback) => {
   const db = new Firestore({
     projectId,
   });
+  console.log(message);
   switch (command) {
     case 'create':
       try {
+        console.log('creating');
         const docRef = db.collection('rooms').doc();
     
         await docRef.set({
@@ -45,7 +47,8 @@ exports.manage = async (event, context, callback) => {
           addedBy: user.public_id,
           addedAt: Firestore.FieldValue.serverTimestamp()
         });
-    
+   
+        console.log(docRef);
         await publish('ex-gateway', { domain, action, command, payload: { ...payload, id: docRef.path }, user, socketId });
         callback();
       } catch (error) {
