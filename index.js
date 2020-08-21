@@ -35,9 +35,11 @@ exports.manage = async (event, context, callback) => {
     projectId,
   });
   if (message.payload.start_date) {
+    console.log('start date parsed', Date.parse(message.payload.start_date));
     message.payload.start_date = Firestore.Timestamp.fromDate(Date.parse(message.payload.start_date));
   }
   if (message.payload.end_date) {
+    console.log('end date parsed', Date.parse(message.payload.end_date));
     message.payload.end_date = Firestore.Timestamp.fromDate(Date.parse(message.payload.end_date));
   }
   switch (command) {
