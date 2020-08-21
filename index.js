@@ -37,7 +37,7 @@ exports.manage = async (event, context, callback) => {
   });
 
   try {
-    const docRef = db.collection('rooms').doc(message.itinerary_id);
+    const docRef = db.collection('rooms').doc(message.itinerary);
 
     await docRef.set({
       messages: [],
@@ -54,6 +54,7 @@ exports.manage = async (event, context, callback) => {
     await publish('ex-gateway', { domain, action, command, payload: { ...payload, public_id: organisation.public_id }, user, socketId });
     callback();
   } catch (error) {
+    console.log(error);
     await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
     callback(0);
   }
