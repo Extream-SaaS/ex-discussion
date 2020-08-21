@@ -34,11 +34,15 @@ exports.manage = async (event, context, callback) => {
   const db = new Firestore({
     projectId,
   });
-  console.log(message);
+  if (message.payload.start_date) {
+    message.payload.start_date = Firestore.Timestamp.fromDate(Date.parse(message.payload.start_date));
+  }
+  if (message.payload.end_date) {
+    message.payload.end_date = Firestore.Timestamp.fromDate(Date.parse(message.payload.end_date));
+  }
   switch (command) {
     case 'create':
       try {
-        console.log('creating');
         const docRef = db.collection('rooms').doc();
     
         await docRef.set({
@@ -48,8 +52,7 @@ exports.manage = async (event, context, callback) => {
           addedAt: Firestore.FieldValue.serverTimestamp()
         });
    
-        console.log(docRef);
-        await publish('ex-gateway', { domain, action, command, payload: { ...payload, id: docRef.path }, user, socketId });
+        await publish('ex-gateway', { domain, action, command, payload: { ...payload, id: docRef.id }, user, socketId });
         callback();
       } catch (error) {
         await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
