@@ -27,7 +27,6 @@ const publish = (
  */
 exports.manage = async (event, context, callback) => {
   const message = event && event.data ? JSON.parse(Buffer.from(event.data, 'base64').toString()) : null;
-  console.log(message);
   if (message === null) {
     callback();
   }
@@ -35,21 +34,58 @@ exports.manage = async (event, context, callback) => {
   const db = new Firestore({
     projectId,
   });
+  switch (command) {
+    case 'create':
+      try {
+        const docRef = db.collection('rooms').doc();
+    
+        await docRef.set({
+          messages: [],
+          ...payload,
+          addedBy: user.public_id,
+          addedAt: Firestore.FieldValue.serverTimestamp()
+        });
+    
+        await publish('ex-gateway', { domain, action, command, payload: { ...payload, id: docRef.path }, user, socketId });
+        callback();
+      } catch (error) {
+        await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
+        callback(0);
+      }
+      break;
+    case 'update':
+      try {
+        const docRef = db.collection('rooms').doc(payload.id);
+    
+        await docRef.set({
+          ...payload,
+          updatedBy: user.public_id,
+          updatedAt: Firestore.FieldValue.serverTimestamp()
+        });
+    
+        await publish('ex-gateway', { domain, action, command, payload: { ...payload }, user, socketId });
+        callback();
+      } catch (error) {
+        await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
+        callback(0);
+      }
+      break;
+    case 'read':
+      try {
+        const docRef = db.collection('rooms').doc(payload.id);
+    
+        const room = await docRef.get();
 
-  try {
-    const docRef = db.collection('rooms').doc(payload.itinerary);
-
-    await docRef.set({
-      messages: [],
-      ...payload
-    });
-    console.log(docRef);
-
-    await publish('ex-gateway', { domain, action, command, payload: { ...payload, public_id: docRef.id }, user, socketId });
-    callback();
-  } catch (error) {
-    console.log(error);
-    await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
-    callback(0);
+        if (!room.exists) {
+          throw new Error('item not found');
+        }
+    
+        await publish('ex-gateway', { domain, action, command, payload: room.data(), user, socketId });
+        callback();
+      } catch (error) {
+        await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
+        callback(0);
+      }
+      break;
   }
 };
