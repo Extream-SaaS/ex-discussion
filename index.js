@@ -37,17 +37,11 @@ exports.manage = async (event, context, callback) => {
   });
 
   try {
-    const docRef = db.collection('rooms').doc(message.itinerary);
+    const docRef = db.collection('rooms').doc(payload.itinerary);
 
     await docRef.set({
       messages: [],
-      title: message.title,
-      start_date: message.start_date,
-      end_date: message.end_date,
-      itinerary: message.itinerary,
-      landing_page: message.landing_page,
-      type: message.type,
-      configuration: message.configuration
+      ...payload
     });
     console.log(docRef);
 
