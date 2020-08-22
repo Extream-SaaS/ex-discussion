@@ -108,7 +108,10 @@ exports.manage = async (event, context, callback) => {
 
         const data = room.data();
 
-        data.messages = messages.forEach(message => message.data());
+        data.messages = messages.forEach(message => {
+          console.log('message', message.data());
+          return message.data();
+        });
     
         await publish('ex-gateway', { domain, action, command, payload: data, user, socketId });
         callback();
