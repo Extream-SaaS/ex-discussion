@@ -97,14 +97,20 @@ exports.manage = async (event, context, callback) => {
     case 'get':
       try {
         const docRef = db.collection('rooms').doc(payload.id);
+        const messageRef = docRef.collection('messages');
     
         const room = await docRef.get();
+        const messages = await messageRef.get();
 
         if (!room.exists) {
           throw new Error('item not found');
         }
+
+        const data = room.data();
+
+        data.messages = messages.data();
     
-        await publish('ex-gateway', { domain, action, command, payload: room.data(), user, socketId });
+        await publish('ex-gateway', { domain, action, command, payload: data, user, socketId });
         callback();
       } catch (error) {
         await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
