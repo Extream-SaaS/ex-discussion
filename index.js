@@ -106,11 +106,12 @@ exports.manage = async (event, context, callback) => {
           throw new Error('item not found');
         }
 
-        const data = room.data();
+        let data = room.data();
 
-        data.messages = messages.forEach(message => {
-          console.log('message', message.data());
-          return message.data();
+        data.messages = {};
+
+        messages.forEach(message => {
+          data.messages[message.id] = message.data();
         });
     
         await publish('ex-gateway', { domain, action, command, payload: data, user, socketId });
