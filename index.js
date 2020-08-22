@@ -108,6 +108,8 @@ exports.manage = async (event, context, callback) => {
 
         const data = room.data();
 
+        console.log('messages', messages);
+
         data.messages = messages.map(message => message.data());
     
         await publish('ex-gateway', { domain, action, command, payload: data, user, socketId });
