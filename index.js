@@ -46,7 +46,6 @@ exports.manage = async (event, context, callback) => {
         const docRef = db.collection('rooms').doc();
     
         await docRef.set({
-          messages: [],
           ...payload,
           addedBy: user.id,
           addedAt: Firestore.FieldValue.serverTimestamp()
@@ -89,6 +88,41 @@ exports.manage = async (event, context, callback) => {
         }
     
         await publish('ex-gateway', { domain, action, command, payload: room.data(), user, socketId });
+        callback();
+      } catch (error) {
+        await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
+        callback(0);
+      }
+      break;
+    case 'get':
+      try {
+        const docRef = db.collection('rooms').doc(payload.id);
+    
+        const room = await docRef.get();
+
+        if (!room.exists) {
+          throw new Error('item not found');
+        }
+    
+        await publish('ex-gateway', { domain, action, command, payload: room.data(), user, socketId });
+        callback();
+      } catch (error) {
+        await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
+        callback(0);
+      }
+      break;
+    case 'send':
+      try {
+        console.log('payload', payload);
+        const docRef = db.collection('rooms').doc(payload.id);
+    
+        const messageRef = docRef.collection('messages').doc();
+
+        await messageRef.set(payload.data);
+        
+        console.log(messageRef);
+    
+        await publish('ex-gateway', { domain, action, command, payload: { ...payload }, user, socketId });
         callback();
       } catch (error) {
         await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
