@@ -126,11 +126,9 @@ exports.manage = async (event, context, callback) => {
         console.log('payload', payload);
         const docRef = db.collection('rooms').doc(payload.id);
     
-        const messageRef = docRef.collection('messages').doc();
+        const messageRef = docRef.collection('messages').doc(payload.data.uuid);
 
         await messageRef.set(payload.data);
-        
-        console.log(messageRef);
     
         await publish('ex-gateway', { domain, action, command, payload: { ...payload }, user, socketId });
         callback();
