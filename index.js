@@ -51,7 +51,10 @@ exports.manage = async (event, context, callback) => {
           addedAt: Firestore.FieldValue.serverTimestamp()
         });
    
-        await publish('ex-gateway', { domain, action, command, payload: { ...payload, id: docRef.id }, user, socketId });
+        await Promise.all([
+          publish('ex-manage', { domain, action, command, payload: { ...payload, id: docRef.id }, user, socketId }),
+          publish('ex-gateway', { domain, action, command, payload: { ...payload, id: docRef.id }, user, socketId })
+        ]);
         callback();
       } catch (error) {
         await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
