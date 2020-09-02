@@ -140,5 +140,53 @@ exports.manage = async (event, context, callback) => {
         callback(0);
       }
       break;
+    case 'remove':
+      try {
+        console.log('payload', payload);
+        const docRef = db.collection('rooms').doc(payload.id);
+    
+        const messageRef = docRef.collection('messages').doc(payload.data.uuid);
+
+        await messageRef.set(
+          {
+            removed: true,
+            updatedBy: user.id,
+            updatedAt: Firestore.FieldValue.serverTimestamp()
+          },
+          { merge: true }
+        );
+
+        await publish('ex-gateway', { domain, action, command, payload: { ...payload }, user, socketId });
+        callback();
+      } catch (error) {
+        await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
+        callback(0);
+      }
+      break;
+    case 'ban':
+      if (domain !== 'client') {
+        callback(0);
+      }
+      try {
+        console.log('payload', payload);
+        const docRef = db.collection('rooms').doc(payload.id);
+    
+        const messageRef = docRef.collection('messages').doc(payload.data.uuid);
+
+        await messageRef.set(
+          {
+            removed: true,
+            updatedBy: user.id,
+            updatedAt: Firestore.FieldValue.serverTimestamp()
+          },
+          { merge: true }
+        );
+
+        await publish('ex-gateway', { domain, action, command, payload: { ...payload }, user, socketId });
+        callback();
+      } catch (error) {
+        await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
+        callback(0);
+      }
   }
 };
