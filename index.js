@@ -117,7 +117,7 @@ exports.manage = async (event, context, callback) => {
           data.messages[message.id] = message.data();
         });
     
-        await publish('ex-gateway', { domain, action, command, payload: data, user, socketId });
+        await publish('ex-gateway', { domain, action, command, payload: { id: payload.id, ...data }, user, socketId });
         callback();
       } catch (error) {
         await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
