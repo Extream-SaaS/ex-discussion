@@ -140,7 +140,7 @@ exports.manage = async (event, context, callback) => {
         console.log('payload', payload);
         const docRef = db.collection('rooms').doc(payload.id);
     
-        const instanceRef = docRef.collection('messages').doc();
+        const instanceRef = docRef.collection('instances').doc(payload.data.instance);
 
         await instanceRef.set({
           participants: [user.id],
