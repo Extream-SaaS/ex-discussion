@@ -109,20 +109,23 @@ exports.manage = async (event, context, callback) => {
         let data = room.data();
 
         if (domain === 'client') {
-          // we need to get all the instances and their statuses
+          // we need to get all the instances and their statuses if we are a participant we can get the messages too
           const instancesRef = docRef.collection('instances');
           const instances = await instancesRef.get();
           data.instances = {};
+          const participant = data.configuration.participants.includes(user.id);
           instances.forEach(async instance => {
             data.instances[instance.id] = instance.data();
-            const messageRef = instancesRef.doc(instance.id).collection('messages');
-            const messages = await messageRef.get();
 
-            data.instances[instance.id].messages = {};
+            if (participant) {
+              const messageRef = instancesRef.doc(instance.id).collection('messages');
+              const messages = await messageRef.get();
+              data.instances[instance.id].messages = {};
 
-            messages.forEach(message => {
-              data.instances[instance.id].messages[message.id] = message.data();
-            });
+              messages.forEach(message => {
+                data.instances[instance.id].messages[message.id] = message.data();
+              });
+            }
           });
         } else {
           if (data.configuration.mode) {
