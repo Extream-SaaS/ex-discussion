@@ -113,28 +113,36 @@ exports.manage = async (event, context, callback) => {
           const instancesRef = docRef.collection('instances');
           const instances = await instancesRef.get();
           data.instances = {};
-          instances.forEach(instance => {
+          instances.forEach(async instance => {
             data.instances[instance.id] = instance.data();
-          });
-        }
+            const messageRef = instancesRef.doc(instance.id).collection('messages');
+            const messages = await messageRef.get();
 
-        if (data.configuration.mode) {
-          // we need an instance ID
-          if (!payload.data.instance) {
-            throw new Error('instance is required');
-          }
-          const instanceRef = docRef.collection('instances').doc(payload.data.instance);
-          const instance = await instanceRef.get();
-          data.instance = instance.data();
+            data.instances[instance.id].messages = {};
+
+            messages.forEach(message => {
+              data.instances[instance.id].messages[message.id] = message.data();
+            });
+          });
         } else {
-          const messageRef = docRef.collection('messages');
-          const messages = await messageRef.get();
+          if (data.configuration.mode) {
+            // we need an instance ID
+            if (!payload.data.instance) {
+              throw new Error('instance is required');
+            }
+            const instanceRef = docRef.collection('instances').doc(payload.data.instance);
+            const instance = await instanceRef.get();
+            data.instance = instance.data();
+          } else {
+            const messageRef = docRef.collection('messages');
+            const messages = await messageRef.get();
 
-          data.messages = {};
+            data.messages = {};
 
-          messages.forEach(message => {
-            data.messages[message.id] = message.data();
-          });
+            messages.forEach(message => {
+              data.messages[message.id] = message.data();
+            });
+          }
         }
     
         await publish('ex-gateway', { domain, action, command, payload: { id: payload.id, ...data }, user, socketId });
