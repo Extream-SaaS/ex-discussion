@@ -107,7 +107,18 @@ exports.manage = async (event, context, callback) => {
         }
 
         let data = room.data();
-        
+
+        if (domain === 'client') {
+          // we need to get all the instances and their statuses
+          const instancesRef = docRef.collection('instances');
+          const instances = await instancesRef.get();
+          const iL = instances.length;
+          data.instances = {};
+          for (let i=0; i<iL; i++) {
+            const instance = instances[i];
+            data.instances[instance.id] = instance.data();
+          };
+        }
 
         if (data.configuration.mode) {
           // we need an instance ID
@@ -120,12 +131,12 @@ exports.manage = async (event, context, callback) => {
         } else {
           const messageRef = docRef.collection('messages');
           const messages = await messageRef.get();
-
+          const mL = messages.length;
           data.messages = {};
-
-          messages.forEach(message => {
+          for (let m=0; m<mL; m++) {
+            const message = messages[m];
             data.messages[message.id] = message.data();
-          });
+          }
         }
     
         await publish('ex-gateway', { domain, action, command, payload: { id: payload.id, ...data }, user, socketId });
