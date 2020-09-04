@@ -112,12 +112,10 @@ exports.manage = async (event, context, callback) => {
           // we need to get all the instances and their statuses
           const instancesRef = docRef.collection('instances');
           const instances = await instancesRef.get();
-          const iL = instances.length;
           data.instances = {};
-          for (let i=0; i<iL; i++) {
-            const instance = instances[i];
+          instances.forEach(instance => {
             data.instances[instance.id] = instance.data();
-          };
+          });
         }
 
         if (data.configuration.mode) {
@@ -131,12 +129,12 @@ exports.manage = async (event, context, callback) => {
         } else {
           const messageRef = docRef.collection('messages');
           const messages = await messageRef.get();
-          const mL = messages.length;
+
           data.messages = {};
-          for (let m=0; m<mL; m++) {
-            const message = messages[m];
+
+          messages.forEach(message => {
             data.messages[message.id] = message.data();
-          }
+          });
         }
     
         await publish('ex-gateway', { domain, action, command, payload: { id: payload.id, ...data }, user, socketId });
