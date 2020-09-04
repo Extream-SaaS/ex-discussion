@@ -164,6 +164,7 @@ exports.manage = async (event, context, callback) => {
 
         await instanceRef.set({
           participants: [user.id],
+          audience: (user.user_type === 'audience') ? user : null,
           status: 'pending',
           addedBy: user.id,
           addedAt: Firestore.FieldValue.serverTimestamp(),
