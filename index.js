@@ -223,6 +223,7 @@ exports.manage = async (event, context, callback) => {
           }, { merge: true });
           const instance = await instanceRef.get();
           payload.data.instance = instance.data();
+          payload.data.id = instance.id;
           const messageRef = instanceRef.collection('messages');
           const messages = await messageRef.get();
           payload.data.messages = {};
