@@ -139,7 +139,7 @@ exports.manage = async (event, context, callback) => {
             data.instance = instance.data();
             const participant = data.instance.participants.includes(user.id);
             if (participant) {
-              const messageRef = instancesRef.doc(instance.id).collection('messages');
+              const messageRef = instanceRef.collection('messages');
               const messages = await messageRef.get();
               data.messages = {};
 
@@ -204,6 +204,13 @@ exports.manage = async (event, context, callback) => {
           }, { merge: true });
           const instance = await instanceRef.get();
           data = instance.data();
+          const messageRef = instanceRef.collection('messages');
+          const messages = await messageRef.get();
+          data.messages = {};
+
+          messages.forEach(message => {
+            data.messages[message.id] = message.data();
+          });
         } else {
           throw new Error('instance is required');
         }
