@@ -113,7 +113,7 @@ exports.manage = async (event, context, callback) => {
           const instancesRef = docRef.collection('instances');
           const instances = await instancesRef.get();
           data.instances = {};
-          const participant = data.configuration.participants.includes(user.id);
+          const participant = data.configuration.operators.includes(user.id);
           instances.forEach(async instance => {
             data.instances[instance.id] = instance.data();
 
@@ -136,6 +136,16 @@ exports.manage = async (event, context, callback) => {
             const instanceRef = docRef.collection('instances').doc(payload.data.instance);
             const instance = await instanceRef.get();
             data.instance = instance.data();
+            const participant = data.instance.participants.includes(user.id);
+            if (participant) {
+              const messageRef = instancesRef.doc(instance.id).collection('messages');
+              const messages = await messageRef.get();
+              data.instance.messages = {};
+
+              messages.forEach(message => {
+                data.instances.messages[message.id] = message.data();
+              });
+            }
           } else {
             const messageRef = docRef.collection('messages');
             const messages = await messageRef.get();
