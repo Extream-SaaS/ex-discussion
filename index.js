@@ -1,4 +1,5 @@
 const Firestore = require('@google-cloud/firestore');
+const admin = require('firebase-admin');
 const projectId = 'stoked-reality-284921';
 
 const publish = (
@@ -183,6 +184,32 @@ exports.manage = async (event, context, callback) => {
         await publish('ex-gateway', { domain, action, command, payload: { ...payload }, user, socketId });
         callback();
       } catch (error) {
+        await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
+        callback(0);
+      }
+      break;
+    case 'activate':
+      // client activates and sets status to active
+      try {
+        if (domain !== 'client') {
+          callback(0);
+        }
+        let data = {};
+        if (payload.data.instance) {
+          const docRef = db.collection('rooms').doc(payload.id);
+          const instanceRef = docRef.collection('instances').doc(payload.data.instance);
+          await instanceRef.set({
+            status: 'active',
+            participants: admin.firestore.FieldValue.arrayUnion(user.id)
+          }, { merge: true });
+          const instance = await instanceRef.get();
+          data = instance.data();
+        } else {
+          throw new Error('instance is required');
+        }
+        await publish('ex-gateway', { domain, action, command, payload: { ...payload, ...data }, user, socketId });
+        callback();
+      } catch (err) {
         await publish('ex-gateway', { error: error.message, domain, action, command, payload, user, socketId });
         callback(0);
       }
