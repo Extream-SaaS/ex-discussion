@@ -137,7 +137,11 @@ exports.manage = async (event, context, callback) => {
             }
             const instanceRef = docRef.collection('instances').doc(payload.data.instance);
             const instance = await instanceRef.get();
+            if (!instance.exists) {
+              throw new Error('instance not found');
+            }
             data.instance = instance.data();
+            console.log('instance retrieved', payload.data.instance, data);
             const participant = data.instance.participants.includes(user.id);
             if (participant) {
               const messageRef = instanceRef.collection('messages');
