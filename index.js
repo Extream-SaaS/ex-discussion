@@ -170,6 +170,15 @@ exports.manage = async (event, context, callback) => {
       try {
         console.log('payload', payload);
         const docRef = db.collection('rooms').doc(payload.id);
+        const room = await docRef.get();
+
+        if (!room.exists) {
+          throw new Error('item not found');
+        }
+
+        let data = room.data();
+
+        payload.data.operators = data.configuration.operators;
     
         const instanceRef = docRef.collection('instances').doc(payload.data.instance);
 
