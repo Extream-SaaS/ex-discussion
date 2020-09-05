@@ -207,24 +207,33 @@ exports.manage = async (event, context, callback) => {
         let data = {};
         if (payload.data.instance) {
           const docRef = db.collection('rooms').doc(payload.id);
+          const room = await docRef.get();
+
+          if (!room.exists) {
+            throw new Error('item not found');
+          }
+
+          let data = room.data();
+
+          payload.data.operators = data.configuration.operators;
           const instanceRef = docRef.collection('instances').doc(payload.data.instance);
           await instanceRef.set({
             status: 'active',
             participants: admin.firestore.FieldValue.arrayUnion(user.id)
           }, { merge: true });
           const instance = await instanceRef.get();
-          data = instance.data();
+          payload.data.instance = instance.data();
           const messageRef = instanceRef.collection('messages');
           const messages = await messageRef.get();
-          data.messages = {};
+          payload.data.messages = {};
 
           messages.forEach(message => {
-            data.messages[message.id] = message.data();
+            payload.data.messages[message.id] = message.data();
           });
         } else {
           throw new Error('instance is required');
         }
-        await publish('ex-gateway', source, { domain, action, command, payload: { ...payload, ...data }, user, socketId });
+        await publish('ex-gateway', source, { domain, action, command, payload: { ...payload }, user, socketId });
         callback();
       } catch (err) {
         await publish('ex-gateway', source, { error: error.message, domain, action, command, payload, user, socketId });
