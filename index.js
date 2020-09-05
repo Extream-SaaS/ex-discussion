@@ -140,10 +140,10 @@ exports.manage = async (event, context, callback) => {
             if (participant) {
               const messageRef = instancesRef.doc(instance.id).collection('messages');
               const messages = await messageRef.get();
-              data.instance.messages = {};
+              data.messages = {};
 
               messages.forEach(message => {
-                data.instances.messages[message.id] = message.data();
+                data.messages[message.id] = message.data();
               });
             }
           } else {
