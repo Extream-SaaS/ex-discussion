@@ -3,9 +3,9 @@ const admin = require('firebase-admin');
 const projectId = 'stoked-reality-284921';
 
 const publish = (
-  topicName = 'ex-gateway',
-  source = 'app-engine',
-  data = {}
+  topicName,
+  source,
+  data
 ) => {
   const {PubSub} = require('@google-cloud/pubsub');
   // Instantiates a client
