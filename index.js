@@ -14,7 +14,7 @@ const publish = (
   async function publishMessage() {
     const sourceStr = data ? `-${source}` : '';
     const dataBuffer = Buffer.from(JSON.stringify(!data ? source : data));
-
+    console.log('pushing to', `${topicName}${sourceStr}`);
     const messageId = await pubsub.topic(`${topicName}${sourceStr}`).publish(dataBuffer);
     return messageId;
   }
