@@ -191,7 +191,7 @@ exports.manage = async (event, context, callback) => {
           payload.data.operators = data.configuration.operators;
           participants.push(user.id);
         } else if (data.configuration.mode === 'direct') {
-          participants = payload.participants;
+          participants = payload.data.participants;
         }
         await instanceRef.set({
           participants,
