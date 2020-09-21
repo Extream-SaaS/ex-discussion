@@ -183,15 +183,20 @@ exports.manage = async (event, context, callback) => {
         }
 
         let data = room.data();
-
-        payload.data.operators = data.configuration.operators;
-    
+        
         const instanceRef = docRef.collection('instances').doc(payload.data.instance);
+        let participants = [];
 
+        if (data.configuration.mode === 'round-robin') {
+          payload.data.operators = data.configuration.operators;
+          participants.push(user.id);
+        } else if (data.configuration.mode === 'direct') {
+          participants = payload.participants;
+        }
         await instanceRef.set({
-          participants: [user.id],
-          audience: (user.user_type === 'audience') ? user : null,
-          status: 'pending',
+          participants,
+          audience: (user.user_type === 'audience' && data.configuration.mode === 'round-robin') ? user : null,
+          status: data.configuration.mode === 'round-robin' ? 'pending': 'active',
           addedBy: user.id,
           addedAt: Firestore.FieldValue.serverTimestamp(),
         });
