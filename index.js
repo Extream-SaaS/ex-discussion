@@ -93,7 +93,7 @@ exports.manage = async (event, context, callback) => {
           throw new Error('item not found');
         }
     
-        await publish('ex-gateway', source, { domain, action, command, payload: room.data(), user, socketId });
+        await publish('ex-gateway', source, { domain, action, command, payload: { ...room.data(), ...payload }, user, socketId });
         callback();
       } catch (error) {
         await publish('ex-gateway', source, { error: error.message, domain, action, command, payload, user, socketId });
