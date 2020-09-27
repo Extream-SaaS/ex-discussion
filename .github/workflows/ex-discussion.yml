@@ -1,62 +1,62 @@
-name: Ex-Discussion
-
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
-jobs:
-  build:
-    name: Build ex-discussion
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x]
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        id: Build
-        uses: actions/setup-node@v1.4.3
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run build --if-present
-      - name: Test
-        id: Test
-        run: npm test
-
-      - uses: act10ns/slack@v1
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-        if: always()
-
-
-  deploy:
-    name: Deploy ex-discussion - Cloud Function
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Deploy to GCP
-        id: Deploy
-        uses: actions-hub/gcloud@307.0.0
-        env:
-          PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
-          APPLICATION_CREDENTIALS: ${{secrets.GCLOUD_CREDENTIALS}}
-        with:
-          args: functions deploy manage-discussion --region europe-west2  --runtime nodejs12 --entry-point manage --trigger-topic ex-discussion --retry
-
-      - uses: act10ns/slack@v1
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-        if: always()
+#name: Ex-Discussion
+#
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+#
+#jobs:
+#  build:
+#    name: Build ex-discussion
+#    runs-on: ubuntu-latest
+#
+#    strategy:
+#      matrix:
+#        node-version: [12.x]
+#
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Use Node.js ${{ matrix.node-version }}
+#        id: Build
+#        uses: actions/setup-node@v1.4.3
+#        with:
+#          node-version: ${{ matrix.node-version }}
+#      - run: npm ci
+#      - run: npm run build --if-present
+#      - name: Test
+#        id: Test
+#        run: npm test
+#
+#      - uses: act10ns/slack@v1
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        with:
+#          status: ${{ job.status }}
+#          steps: ${{ toJson(steps) }}
+#        if: always()
+#
+#
+#  deploy:
+#    name: Deploy ex-discussion - Cloud Function
+#    runs-on: ubuntu-latest
+#    needs: [build]
+#    steps:
+#      - uses: actions/checkout@v2
+#
+#      - name: Deploy to GCP
+#        id: Deploy
+#        uses: actions-hub/gcloud@307.0.0
+#        env:
+#          PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+#          APPLICATION_CREDENTIALS: ${{secrets.GCLOUD_CREDENTIALS}}
+#        with:
+#          args: functions deploy manage-discussion --region europe-west2  --runtime nodejs12 --entry-point manage --trigger-topic ex-discussion --retry
+#
+#      - uses: act10ns/slack@v1
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        with:
+#          status: ${{ job.status }}
+#          steps: ${{ toJson(steps) }}
+#        if: always()
