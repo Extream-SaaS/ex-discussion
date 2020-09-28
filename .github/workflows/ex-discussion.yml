@@ -51,7 +51,7 @@ jobs:
          PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
          APPLICATION_CREDENTIALS: ${{secrets.GCLOUD_CREDENTIALS}}
        with:
-         args: functions deploy manage-discussion --region europe-west2  --runtime nodejs12 --entry-point manage --trigger-topic ex-discussion --retry
+         args: functions deploy manage-discussion --region europe-west2 --source ./ --runtime nodejs12 --entry-point manage --trigger-topic ex-discussion --retry
 
      - uses: act10ns/slack@v1
        env:
