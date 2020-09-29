@@ -165,7 +165,7 @@ exports.manage = async (event, context, callback) => {
           }
         }
     
-        await publish('ex-gateway', source, { domain, action, command, payload: { ...payload.payload, ...data }, user, socketId });
+        await publish('ex-gateway', source, { domain, action, command, payload: { ...payload, ...data }, user, socketId });
         callback();
       } catch (error) {
         await publish('ex-gateway', source, { error: error.message, domain, action, command, payload, user, socketId });
