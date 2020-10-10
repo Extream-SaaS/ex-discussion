@@ -246,7 +246,7 @@ exports.manage = async (event, context, callback) => {
         }
         await publish('ex-gateway', source, { domain, action, command, payload: { ...payload }, user, socketId });
         callback();
-      } catch (err) {
+      } catch (error) {
         await publish('ex-gateway', source, { error: error.message, domain, action, command, payload, user, socketId });
         callback(0);
       }
