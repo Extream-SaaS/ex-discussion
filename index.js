@@ -195,7 +195,7 @@ exports.manage = async (event, context, callback) => {
         }
         await instanceRef.set({
           participants,
-          audience: (user.user_type === 'audience' && data.configuration.mode === 'round-robin') ? user : null,
+          audience: (data.configuration.mode === 'round-robin') ? user : null,
           status: data.configuration.mode === 'round-robin' ? 'pending': 'active',
           addedBy: user.id,
           addedAt: Firestore.FieldValue.serverTimestamp(),
