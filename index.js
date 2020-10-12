@@ -194,6 +194,7 @@ exports.manage = async (event, context, callback) => {
           participants = payload.data.participants;
         }
         await instanceRef.set({
+          ...payload.data,
           participants,
           audience: (data.configuration.mode === 'round-robin') ? user : null,
           status: data.configuration.mode === 'round-robin' ? 'pending': 'active',
