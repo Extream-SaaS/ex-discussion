@@ -304,16 +304,28 @@ exports.manage = async (event, context, callback) => {
         console.log('payload', payload);
         const docRef = db.collection('rooms').doc(payload.id);
     
-        const messageRef = docRef.collection('messages').doc(payload.data.uuid);
-
-        await messageRef.set(
-          {
-            removed: true,
-            updatedBy: user.id,
-            updatedAt: Firestore.FieldValue.serverTimestamp()
-          },
-          { merge: true }
-        );
+        if (payload.data.instance) {
+          const instanceRef = docRef.collection('instances').doc(payload.data.instance);
+          const messageRef = instanceRef.collection('messages').doc(payload.data.uuid);
+          await messageRef.set(
+            {
+              removed: true,
+              updatedBy: user.id,
+              updatedAt: Firestore.FieldValue.serverTimestamp()
+            },
+            { merge: true }
+          );
+        } else {
+          const messageRef = docRef.collection('messages').doc(payload.data.uuid);
+          await messageRef.set(
+            {
+              removed: true,
+              updatedBy: user.id,
+              updatedAt: Firestore.FieldValue.serverTimestamp()
+            },
+            { merge: true }
+          );
+        }
 
         await publish('ex-gateway', source, { domain, action, command, payload: { ...payload }, user, socketId });
         callback();
