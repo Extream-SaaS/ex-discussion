@@ -333,5 +333,76 @@ exports.manage = async (event, context, callback) => {
         await publish('ex-gateway', source, { error: error.message, domain, action, command, payload, user, socketId });
         callback(0);
       }
+      break;
+    case 'add':
+      try {
+        console.log('payload', payload);
+        const docRef = db.collection('rooms').doc(payload.id);
+        const room = await docRef.get();
+
+        if (!room.exists) {
+          throw new Error('item not found');
+        }
+
+        let data = room.data();
+        
+        const instanceRef = docRef.collection('instances').doc(payload.data.instance);
+        const instance = await instanceRef.get();
+        if (!instance.exists) {
+          throw new Error('instance not found');
+        }
+        let participants = instance.data().participants;
+
+        if (data.configuration.mode === 'direct') {
+          participants = participants.concat(payload.data.participants);
+        }
+        await instanceRef.set({
+          participants,
+          updatedBy: user.id,
+          updatedAt: Firestore.FieldValue.serverTimestamp()
+        });
+    
+        await publish('ex-gateway', source, { domain, action, command, payload: { ...payload }, user, socketId });
+        callback();
+      } catch (error) {
+        await publish('ex-gateway', source, { error: error.message, domain, action, command, payload, user, socketId });
+        callback(0);
+      }
+      break;
+    case 'leave':
+      try {
+        console.log('payload', payload);
+        const docRef = db.collection('rooms').doc(payload.id);
+        const room = await docRef.get();
+
+        if (!room.exists) {
+          throw new Error('item not found');
+        }
+
+        let data = room.data();
+        
+        const instanceRef = docRef.collection('instances').doc(payload.data.instance);
+        const instance = await instanceRef.get();
+        if (!instance.exists) {
+          throw new Error('instance not found');
+        }
+        let participants = instance.data().participants;
+
+        if (data.configuration.mode === 'direct') {
+          participants = participants.filter(participant => participant !== user.id);
+        }
+        await instanceRef.set({
+          participants,
+          updatedBy: user.id,
+          updatedAt: Firestore.FieldValue.serverTimestamp()
+        });
+    
+        await publish('ex-gateway', source, { domain, action, command, payload: { ...payload }, user, socketId });
+        callback();
+      } catch (error) {
+        await publish('ex-gateway', source, { error: error.message, domain, action, command, payload, user, socketId });
+        callback(0);
+      }
+      break;
   }
 };
