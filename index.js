@@ -363,10 +363,10 @@ exports.manage = async (event, context, callback) => {
           updatedAt: Firestore.FieldValue.serverTimestamp()
         });
 
-        payload.topic = instanceData.topic;
-        payload.from = user;
-        payload.instance = instanceData.instance;
-        payload.route = instanceData.route;
+        payload.data.topic = instanceData.topic;
+        payload.data.from = user;
+        payload.data.instance = instanceData.instance;
+        payload.data.route = instanceData.route;
     
         await publish('ex-gateway', source, { domain, action, command, payload: { ...payload }, user, socketId });
         callback();
