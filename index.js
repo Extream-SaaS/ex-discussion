@@ -364,7 +364,7 @@ exports.manage = async (event, context, callback) => {
         });
 
         payload.topic = instanceData.topic;
-        payload.from = instanceData.from;
+        payload.from = user;
         payload.instance = instanceData.instance;
         payload.route = instanceData.route;
     
