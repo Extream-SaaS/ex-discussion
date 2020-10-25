@@ -351,7 +351,8 @@ exports.manage = async (event, context, callback) => {
         if (!instance.exists) {
           throw new Error('instance not found');
         }
-        let participants = instance.data().participants;
+        const instanceData = instance.data();
+        let participants = instanceData.participants;
 
         if (data.configuration.mode === 'direct') {
           participants = participants.concat(payload.data.participants);
@@ -361,6 +362,11 @@ exports.manage = async (event, context, callback) => {
           updatedBy: user.id,
           updatedAt: Firestore.FieldValue.serverTimestamp()
         });
+
+        payload.topic = instanceData.topic;
+        payload.from = instanceData.from;
+        payload.instance = instanceData.instance;
+        payload.route = instanceData.route;
     
         await publish('ex-gateway', source, { domain, action, command, payload: { ...payload }, user, socketId });
         callback();
