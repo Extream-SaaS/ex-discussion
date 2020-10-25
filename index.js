@@ -365,7 +365,6 @@ exports.manage = async (event, context, callback) => {
 
         payload.data.topic = instanceData.topic;
         payload.data.from = user;
-        payload.data.instance = instanceData.instance;
         payload.data.route = instanceData.route;
     
         await publish('ex-gateway', source, { domain, action, command, payload: { ...payload }, user, socketId });
