@@ -361,7 +361,8 @@ exports.manage = async (event, context, callback) => {
           participants,
           updatedBy: user.id,
           updatedAt: Firestore.FieldValue.serverTimestamp()
-        });
+        },
+        { merge: true });
 
         payload.data.topic = instanceData.topic;
         payload.data.from = user;
@@ -400,7 +401,8 @@ exports.manage = async (event, context, callback) => {
           participants,
           updatedBy: user.id,
           updatedAt: Firestore.FieldValue.serverTimestamp()
-        });
+        },
+        { merge: true });
     
         await publish('ex-gateway', source, { domain, action, command, payload: { ...payload }, user, socketId });
         callback();
