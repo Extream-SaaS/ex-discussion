@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test configured\""
+    "test": "echo \"Error: no test configured\"",
+    "dev": "node dev.js"
   },
   "keywords": [],
   "author": "",
@@ -13,5 +14,8 @@
     "@google-cloud/firestore": "^4.2.0",
     "@google-cloud/pubsub": "^2.5.0",
     "firebase-admin": "^9.1.1"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
   }
 }

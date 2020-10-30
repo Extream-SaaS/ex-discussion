@@ -153,6 +153,21 @@ exports.manage = async (event, context, callback) => {
                 data.messages[message.id] = message.data();
               });
             }
+          } else if (data.configuration.moderation) {
+            const messageRef = docRef.collection('messages');
+            // if i am a moderator, show me all messages, else only show me mine
+            let messages;
+            if (data.configuration.moderators.includes(user.id)) {
+              messages = await messageRef.get();
+            } else {
+              messages = await messageRef.where('from.id', '==', user.id).get();
+            }
+
+            data.messages = {};
+
+            messages.forEach(message => {
+              data.messages[message.id] = message.data();
+            });
           } else {
             const messageRef = docRef.collection('messages');
             const messages = await messageRef.get();
