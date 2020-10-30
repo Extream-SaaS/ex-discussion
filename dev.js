@@ -167,7 +167,7 @@ payload = {
     data: {},
   },
   user: {
-    id: '8c3b38a3-e394-42dc-9c7e-5a741f238061',
+    id: '71b0db19-6daf-4ec2-876b-fe068c64aed0',
     username: 'tester',
     fields: { custom: 'fields' },
     token: 'e7c070e8d69b28093154bb7c4ca7602af8bd1cd4'

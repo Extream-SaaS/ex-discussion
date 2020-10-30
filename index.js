@@ -153,14 +153,17 @@ exports.manage = async (event, context, callback) => {
                 data.messages[message.id] = message.data();
               });
             }
-          } else if (data.configuration.moderation) {
+          } else if (data.configuration.moderation && data.configuration.moderation === 'pre-moderate') {
             const messageRef = docRef.collection('messages');
             // if i am a moderator, show me all messages, else only show me mine
             let messages;
             if (data.configuration.moderators.includes(user.id)) {
               messages = await messageRef.get();
             } else {
-              messages = await messageRef.where('from.id', '==', user.id).get();
+              // show me all my messages, and public ones
+              const myMessages = await messageRef.where('from.id', '==', user.id).get();
+              const replyMessages = await messageRef.where('requester.id', '==', user.id).get();
+              messages = myMessages.concat(replyMessages);
             }
 
             data.messages = {};
