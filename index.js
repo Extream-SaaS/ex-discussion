@@ -282,6 +282,13 @@ exports.manage = async (event, context, callback) => {
           await messageRef.set(payload.data);
         } else {
           const messageRef = docRef.collection('messages').doc(payload.data.uuid);
+          if (payload.data.private === false && payload.data.parent) {
+            // need to make the parent public too otherwise thread won't exist
+            const parentRef = docRef.collection('messages').doc(payload.data.parent);
+            await parentRef.set({
+              private: false,
+            }, { merge: true });
+          }
           await messageRef.set(payload.data);
         }
     
