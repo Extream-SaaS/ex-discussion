@@ -132,26 +132,46 @@ exports.manage = async (event, context, callback) => {
           });
         } else {
           if (data.configuration.mode) {
-            // we need an instance ID
-            if (!payload.data.instance) {
-              throw new Error('instance is required');
-            }
-            const instanceRef = docRef.collection('instances').doc(payload.data.instance);
-            const instance = await instanceRef.get();
-            if (!instance.exists) {
-              throw new Error('instance not found');
-            }
-            data.instance = instance.data();
-            console.log('instance retrieved', payload.data.instance, data);
-            const participant = data.instance.participants.includes(user.id);
-            if (participant) {
-              const messageRef = instanceRef.collection('messages');
-              const messages = await messageRef.get();
-              data.messages = {};
+            // we need an instance ID - if not provided, lets get all the users instances
+            if (!payload.data) {
+              const instancesRef = docRef.collection('instances');
+              const myInstances = await docRef.collection('instances').where('from.id', '==', user.id).get();
+              const publicUser = (({email, token, ...user}) => user)(user);
+              console.log(publicUser);
+              const joinedInstances = await docRef.collection('instances').where('participants', 'array-contains', publicUser).get();
+              const instances = joinedInstances.docs.concat(myInstances.docs);
+              data.instances = {};
 
-              messages.forEach(message => {
-                data.messages[message.id] = message.data();
+              instances.forEach(async instance => {
+                data.instances[instance.id] = instance.data();
+                const messageRef = instancesRef.doc(instance.id).collection('messages');
+                const messages = await messageRef.get();
+                data.instances[instance.id].messages = {};
+  
+                messages.forEach(message => {
+                  data.instances[instance.id].messages[message.id] = message.data();
+                });
               });
+            } else if (!payload.data.instance) {
+              throw new Error('instance is required');
+            } else {
+              const instanceRef = docRef.collection('instances').doc(payload.data.instance);
+              const instance = await instanceRef.get();
+              if (!instance.exists) {
+                throw new Error('instance not found');
+              }
+              data.instance = instance.data();
+              console.log('instance retrieved', payload.data.instance, data);
+              const participant = data.instance.participants.includes(user.id);
+              if (participant) {
+                const messageRef = instanceRef.collection('messages');
+                const messages = await messageRef.get();
+                data.messages = {};
+
+                messages.forEach(message => {
+                  data.messages[message.id] = message.data();
+                });
+              }
             }
           } else if (data.configuration.moderation && data.configuration.moderation === 'pre-moderate') {
             const messageRef = docRef.collection('messages');
