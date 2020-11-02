@@ -163,11 +163,11 @@ payload = {
   action: 'chat',
   command: 'get',
   payload: {
-    id: "A0IjU1Z2vznGTa172gfa",
+    id: "bgHvMJF0bRosCkjFVG0u",
     data: {},
   },
   user: {
-    id: '71b0db19-6daf-4ec2-876b-fe068c64aed0',
+    id: '98751e59-e720-4554-ac9e-d15392788832',
     username: 'tester',
     fields: { custom: 'fields' },
     token: 'e7c070e8d69b28093154bb7c4ca7602af8bd1cd4'

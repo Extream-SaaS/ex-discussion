@@ -164,7 +164,7 @@ exports.manage = async (event, context, callback) => {
               const myMessages = await messageRef.where('from.id', '==', user.id).get();
               const replyMessages = await messageRef.where('requester.id', '==', user.id).get();
               const publicMessages = await messageRef.where('private', '==', false).get();
-              messages = myMessages.concat(replyMessages, publicMessages);
+              messages = myMessages.docs.concat(replyMessages.docs, publicMessages.docs);
             }
 
             data.messages = {};
