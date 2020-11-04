@@ -137,7 +137,6 @@ exports.manage = async (event, context, callback) => {
               const instancesRef = docRef.collection('instances');
               const myInstances = await docRef.collection('instances').where('from.id', '==', user.id).get();
               const publicUser = (({email, token, ...user}) => user)(user);
-              console.log(publicUser);
               const joinedInstances = await docRef.collection('instances').where('participants', 'array-contains', publicUser).get();
               const instances = joinedInstances.docs.concat(myInstances.docs);
               data.instances = {};
@@ -179,12 +178,15 @@ exports.manage = async (event, context, callback) => {
             let messages;
             if (data.configuration.moderators.includes(user.id)) {
               messages = await messageRef.get();
+              data.condition = 'show all';
             } else {
               // show me all my messages, and public ones
               const myMessages = await messageRef.where('from.id', '==', user.id).get();
               const replyMessages = await messageRef.where('requester.id', '==', user.id).get();
               const publicMessages = await messageRef.where('private', '==', false).get();
-              messages = myMessages.docs.concat(replyMessages.docs, publicMessages.docs);
+              const sharedMessages = await messageRef.where('private', '==', 'false').get();
+              messages = myMessages.docs.concat(replyMessages.docs, publicMessages.docs, sharedMessages.docs);
+              data.condition = 'show filtered';
             }
 
             data.messages = {};
@@ -204,6 +206,10 @@ exports.manage = async (event, context, callback) => {
           }
         }
     
+        if (process.env.NODE_ENV !== 'production') {
+          console.log({ ...payload, ...data });
+          return { ...payload, ...data };
+        }
         await publish('ex-gateway', source, { domain, action, command, payload: { ...payload, ...data }, user, socketId });
         callback();
       } catch (error) {
