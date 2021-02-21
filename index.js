@@ -37,12 +37,15 @@ exports.manage = async (event, context, callback) => {
   const db = new Firestore({
     projectId,
   });
+  console.log('==== debug incoming message');
+  console.log(message.payload);
   if (message.payload.start_date) {
     message.payload.start_date = Firestore.Timestamp.fromDate(new Date(Date.parse(message.payload.start_date)));
   }
   if (message.payload.end_date) {
     message.payload.end_date = Firestore.Timestamp.fromDate(new Date(Date.parse(message.payload.end_date)));
   }
+  console.log('==== END DEBUG PREP');
   switch (command) {
     case 'create':
       try {
@@ -178,7 +181,6 @@ exports.manage = async (event, context, callback) => {
             let messages;
             if (data.configuration.moderators.includes(user.id)) {
               messages = await messageRef.get();
-              data.condition = 'show all';
             } else {
               // show me all my messages, and public ones
               const myMessages = await messageRef.where('from.id', '==', user.id).get();
@@ -186,7 +188,6 @@ exports.manage = async (event, context, callback) => {
               const publicMessages = await messageRef.where('private', '==', false).get();
               const sharedMessages = await messageRef.where('private', '==', 'false').get();
               messages = myMessages.docs.concat(replyMessages.docs, publicMessages.docs, sharedMessages.docs);
-              data.condition = 'show filtered';
             }
 
             data.messages = {};

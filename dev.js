@@ -163,16 +163,23 @@ payload = {
   action: 'chat',
   command: 'get',
   payload: {
-    id: "OWSUWgHeuttYxnLp5CX0",
+    id: "69MsnCyBcFZFHEPKickq",
+    data: {},
   },
   user: {
-    id: 'c06e014e-5d4d-49ec-96a5-dcdf9278fbc5',
-    username: 'tester',
-    fields: { custom: 'fields' },
-    token: 'e7c070e8d69b28093154bb7c4ca7602af8bd1cd4'
+    email: "19017755_richard.wilson@smgdesign.org",
+    eventId: "776119c1-d1ef-4887-b2d4-7918dd5381ff",
+    fields: {vid: 19017755},
+    firstName: "Richard",
+    id: "af6ce04a-6947-452c-ad9a-6c23035865c1",
+    lastName: "Wilson",
+    token: "69c2eb97c87b2367aaac069cd0355d516b7c26ed",
+    user_type: "audience",
+    username: "richard.wilson@smgdesign.org"
   },
-  socketId: 'XbTiLsd9CmFwzEafAAAA',
+  socketId: 'aN29aEZXCP2qHKeQAAGB',
   source: 'rw-local',
+  eventId: '776119c1-d1ef-4887-b2d4-7918dd5381ff',
 };
 data = Buffer.from(JSON.stringify(payload)).toString('base64');
 event = {
