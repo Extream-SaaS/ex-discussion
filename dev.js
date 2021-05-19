@@ -158,24 +158,42 @@ let payload, data, event;
 //   },
 //   socketId: 'XbTiLsd9CmFwzEafAAAA'
 // };
+// payload = {
+//   domain: 'consumer',
+//   action: 'chat',
+//   command: 'get',
+//   payload: {
+//     id: "69MsnCyBcFZFHEPKickq",
+//     data: {},
+//   },
+//   user: {
+//     email: "19017755_richard.wilson@smgdesign.org",
+//     eventId: "776119c1-d1ef-4887-b2d4-7918dd5381ff",
+//     fields: {vid: 19017755},
+//     firstName: "Richard",
+//     id: "af6ce04a-6947-452c-ad9a-6c23035865c1",
+//     lastName: "Wilson",
+//     token: "69c2eb97c87b2367aaac069cd0355d516b7c26ed",
+//     user_type: "audience",
+//     username: "richard.wilson@smgdesign.org"
+//   },
+//   socketId: 'aN29aEZXCP2qHKeQAAGB',
+//   source: 'rw-local',
+//   eventId: '776119c1-d1ef-4887-b2d4-7918dd5381ff',
+// };
 payload = {
   domain: 'consumer',
   action: 'chat',
-  command: 'get',
+  command: 'spammer',
   payload: {
-    id: "69MsnCyBcFZFHEPKickq",
+    id: "d98UY2CMparSUbnNDN09",
     data: {},
   },
   user: {
-    email: "19017755_richard.wilson@smgdesign.org",
-    eventId: "776119c1-d1ef-4887-b2d4-7918dd5381ff",
-    fields: {vid: 19017755},
     firstName: "Richard",
-    id: "af6ce04a-6947-452c-ad9a-6c23035865c1",
+    id: "f02ec7fa-15e5-4982-9224-d35897b4931d",
     lastName: "Wilson",
-    token: "69c2eb97c87b2367aaac069cd0355d516b7c26ed",
     user_type: "audience",
-    username: "richard.wilson@smgdesign.org"
   },
   socketId: 'aN29aEZXCP2qHKeQAAGB',
   source: 'rw-local',

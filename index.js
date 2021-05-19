@@ -37,15 +37,12 @@ exports.manage = async (event, context, callback) => {
   const db = new Firestore({
     projectId,
   });
-  console.log('==== debug incoming message');
-  console.log(message.payload);
   if (message.payload.start_date) {
     message.payload.start_date = Firestore.Timestamp.fromDate(new Date(Date.parse(message.payload.start_date)));
   }
   if (message.payload.end_date) {
     message.payload.end_date = Firestore.Timestamp.fromDate(new Date(Date.parse(message.payload.end_date)));
   }
-  console.log('==== END DEBUG PREP');
   switch (command) {
     case 'create':
       try {
@@ -208,8 +205,8 @@ exports.manage = async (event, context, callback) => {
         }
     
         if (process.env.NODE_ENV !== 'production') {
-          console.log({ ...payload, ...data });
-          return { ...payload, ...data };
+          // console.log({ ...payload, ...data });
+          callback({ ...payload, ...data });
         }
         await publish('ex-gateway', source, { domain, action, command, payload: { ...payload, ...data }, user, socketId });
         callback();
@@ -298,25 +295,75 @@ exports.manage = async (event, context, callback) => {
         callback(0);
       }
       break;
+    case 'spammer':
+      try {
+        const docRef = db.collection('rooms').doc(payload.id);
+        const threshold = new Date();
+        threshold.setSeconds(threshold.getSeconds() - 10);
+        let myMessages;
+        if (payload.data.instance) {
+          const instanceRef = docRef.collection('instances').doc(payload.data.instance);
+          // find all messages from this person in last 10 seconds
+          myMessages = await instanceRef.collection('messages').where('from.id', '==', user.id).get();
+        } else {
+          // find all messages from this person in last 10 seconds
+          myMessages = await docRef.collection('messages').where('from.id', '==', user.id).get();
+        }
+        const messageTimes = myMessages.docs.filter(message => {
+          return new Date(message.data().sent) > threshold;
+        });
+        if (process.env.NODE_ENV !== 'production') {
+          // console.log({ ...payload, ...data });
+          callback({ count: messageTimes.length, threshold });
+        }
+        await publish('ex-gateway', source, { domain, action, command, payload: { count: messageTimes.length, threshold }, user, socketId });
+        callback();
+      } catch (error) {
+        await publish('ex-gateway', source, { error: error.message, domain, action, command, payload, user, socketId });
+        if (process.env.NODE_ENV !== 'production') {
+          // console.log({ ...payload, ...data });
+          callback(error);
+        }
+        callback(0);
+      }
+      break;
     case 'send':
       try {
-        console.log('payload', payload);
         const docRef = db.collection('rooms').doc(payload.id);
-    
+        const threshold = new Date();
+        threshold.setSeconds(threshold.getSeconds() - 10);
         if (payload.data.instance) {
           const instanceRef = docRef.collection('instances').doc(payload.data.instance);
           const messageRef = instanceRef.collection('messages').doc(payload.data.uuid);
-          await messageRef.set(payload.data);
+          // find all messages from this person in last 10 seconds
+          const myMessages = await instanceRef.collection('messages').where('from.id', '==', user.id).get();
+          const messageTimes = myMessages.docs.filter(message => {
+            return new Date(message.sent) > threshold;
+          });
+          if (messageTimes.length > 10) {
+            throw new Error('Message sending has been temporarily halted');
+          } else {
+            await messageRef.set(payload.data);
+          }
         } else {
           const messageRef = docRef.collection('messages').doc(payload.data.uuid);
-          if ((payload.data.private === false || payload.data.private === 'false') && payload.data.parent) {
-            // need to make the parent public too otherwise thread won't exist
-            const parentRef = docRef.collection('messages').doc(payload.data.parent);
-            await parentRef.set({
-              private: false,
-            }, { merge: true });
+          // find all messages from this person in last 10 seconds
+          const myMessages = await docRef.collection('messages').where('from.id', '==', user.id).get();
+          const messageTimes = myMessages.docs.filter(message => {
+            return new Date(message.sent) > threshold;
+          });
+          if (messageTimes.length > 10) {
+            throw new Error('Message sending has been temporarily halted');
+          } else {
+            if ((payload.data.private === false || payload.data.private === 'false') && payload.data.parent) {
+              // need to make the parent public too otherwise thread won't exist
+              const parentRef = docRef.collection('messages').doc(payload.data.parent);
+              await parentRef.set({
+                private: false,
+              }, { merge: true });
+            }
+            await messageRef.set(payload.data);
           }
-          await messageRef.set(payload.data);
         }
     
         await publish('ex-gateway', source, { domain, action, command, payload: { ...payload }, user, socketId });
