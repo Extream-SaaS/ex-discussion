@@ -181,13 +181,32 @@ let payload, data, event;
 //   source: 'rw-local',
 //   eventId: '776119c1-d1ef-4887-b2d4-7918dd5381ff',
 // };
+// payload = {
+//   domain: 'consumer',
+//   action: 'chat',
+//   command: 'spammer',
+//   payload: {
+//     id: "d98UY2CMparSUbnNDN09",
+//     data: {},
+//   },
+//   user: {
+//     firstName: "Richard",
+//     id: "f02ec7fa-15e5-4982-9224-d35897b4931d",
+//     lastName: "Wilson",
+//     user_type: "audience",
+//   },
+//   socketId: 'aN29aEZXCP2qHKeQAAGB',
+//   source: 'rw-local',
+//   eventId: '776119c1-d1ef-4887-b2d4-7918dd5381ff',
+// };
 payload = {
   domain: 'consumer',
   action: 'chat',
-  command: 'spammer',
+  command: 'get',
   payload: {
-    id: "d98UY2CMparSUbnNDN09",
-    data: {},
+    id: 'd98UY2CMparSUbnNDN09',
+    correlationId: '1621885061757-consumer_chat_get-d98UY2CMparSUbnNDN09',
+    data: {}
   },
   user: {
     firstName: "Richard",
@@ -198,13 +217,15 @@ payload = {
   socketId: 'aN29aEZXCP2qHKeQAAGB',
   source: 'rw-local',
   eventId: '776119c1-d1ef-4887-b2d4-7918dd5381ff',
-};
+}
 data = Buffer.from(JSON.stringify(payload)).toString('base64');
 event = {
   data
 };
+console.log(Date.now());
 manage(event, '', (resp) => {
-  console.log(resp);
+  // console.log(resp);
   console.log('executed');
+  console.log(Date.now());
   process.exit();
 });
